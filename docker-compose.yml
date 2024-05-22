@@ -1,0 +1,10 @@
+services:
+  db:
+    container_name: go_rss_db
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: go_rss_db

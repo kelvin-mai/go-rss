@@ -3,15 +3,19 @@ package main
 import (
 	"log"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
+	"kelvinmai.io/rss/internal/database"
+	"kelvinmai.io/rss/internal/router"
 )
 
 func main() {
-	app := fiber.New()
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(fiber.Map{
-			"status": "ok",
-		})
-	})
-	log.Fatal(app.Listen(":4000"))
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	_, err := database.Connect()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+	r := router.Init()
+	r.Serve()
 }

@@ -1,0 +1,22 @@
+package router
+
+import (
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type Router struct {
+	app *fiber.App
+}
+
+func Init() *Router {
+	app := fiber.New()
+	return &Router{
+		app: app,
+	}
+}
+
+func (r *Router) Serve() {
+	log.Fatal(r.app.Listen(":4000"))
+}
