@@ -9,9 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Connect() (*sqlx.DB, error) {
+func Connect() *sqlx.DB {
 	db, err := sqlx.Connect(
-		"posgres",
+		"postgres",
 		fmt.Sprintf(
 			"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 			os.Getenv("DATABASE_HOST"),
@@ -22,8 +22,8 @@ func Connect() (*sqlx.DB, error) {
 		),
 	)
 	if err != nil {
-		return nil, err
+		log.Fatalf("Error connecting to database: %v\n", err)
 	}
 	log.Println("Connected to database")
-	return db, nil
+	return db
 }
