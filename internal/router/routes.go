@@ -9,6 +9,7 @@ import (
 type RouteControllers struct {
 	AuthController *controller.AuthController
 	UserController *controller.UserController
+	FeedController *controller.FeedController
 }
 
 func healthCheck(ctx *fiber.Ctx) error {
@@ -28,4 +29,11 @@ func (r *Router) SetupRoutes(c RouteControllers) {
 	users.Get("/", c.UserController.GetAllUsers)
 	users.Get("/me", middleware.Authenticate(), c.AuthController.CurrentUser)
 	users.Get("/:id", c.UserController.GetUserById)
+
+	feeds := api.Group("/feeds")
+	feeds.Get("/", c.FeedController.GetAllFeeds)
+	feeds.Post("/", c.FeedController.CreateFeed)
+	feeds.Get("/:id", c.FeedController.GetFeedById)
+	feeds.Put("/:id", c.FeedController.UpdateFeed)
+	feeds.Delete("/:id", c.FeedController.DeleteById)
 }

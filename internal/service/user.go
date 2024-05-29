@@ -33,13 +33,19 @@ func (s *UserService) GetByUsername(username string) (model.User, error) {
 	return user, err
 }
 
-func (s *UserService) Create(username, password string) error {
-	_, err := s.db.Exec(
+func (s *UserService) Create(username, password string) (*model.User, error) {
+	rows, err := s.db.Queryx(
 		`insert into users (username, password)
 		 values ($1, $2)
-		`,
+		 returning *`,
 		username,
 		password,
 	)
-	return err
+	if err != nil {
+		return nil, err
+	}
+	user := model.User{}
+	rows.Next()
+	err = rows.StructScan(&user)
+	return &user, err
 }

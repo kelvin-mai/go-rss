@@ -44,15 +44,11 @@ func (c *AuthController) Register(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	err = c.s.Create(input.Username, password)
+	user, err := c.s.Create(input.Username, password)
 	if err != nil {
 		return err
 	}
 	token, err := createToken(input.Username)
-	if err != nil {
-		return err
-	}
-	user, err := c.s.GetByUsername(input.Username)
 	if err != nil {
 		return err
 	}

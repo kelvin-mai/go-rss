@@ -19,13 +19,16 @@ func main() {
 	r := router.Init()
 
 	us := service.NewUserService(db)
+	fs := service.NewFeedService(db)
 
 	ac := controller.NewAuthController(us)
 	uc := controller.NewUserController(us)
+	fc := controller.NewFeedController(fs)
 
 	r.SetupRoutes(router.RouteControllers{
 		AuthController: ac,
 		UserController: uc,
+		FeedController: fc,
 	})
 	r.Serve()
 }
