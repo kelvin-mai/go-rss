@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"os"
 	"time"
@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/o1egl/paseto"
 	"kelvinmai.io/rss/internal/model"
+	"kelvinmai.io/rss/internal/router/response"
 	"kelvinmai.io/rss/internal/service"
 	"kelvinmai.io/rss/util"
 )
@@ -37,72 +38,57 @@ func createToken(username string) (string, error) {
 func (c *AuthController) Register(ctx *fiber.Ctx) error {
 	input := model.AuthInput{}
 	if err := ctx.BodyParser(&input); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "Error on register",
-			"data":    err,
-		})
+		return err
 	}
-	password := util.HashPassword(input.Password)
-	// user := &model.User{}
-	// c.s.GetByUsername(input.Username)
-	err := c.s.Create(input.Username, password)
+	password, err := util.HashPassword(input.Password)
 	if err != nil {
-		log.Printf("%v\n", err)
+		return err
+	}
+	err = c.s.Create(input.Username, password)
+	if err != nil {
+		return err
 	}
 	token, err := createToken(input.Username)
 	if err != nil {
-		log.Printf("%v\n", err)
+		return err
 	}
-	user, _ := c.s.GetByUsername(input.Username)
+	user, err := c.s.GetByUsername(input.Username)
+	if err != nil {
+		return err
+	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"data": fiber.Map{
-			"user":  user,
-			"token": token,
-		},
+	return response.Created(ctx, fiber.Map{
+		"user":  user,
+		"token": token,
 	})
 }
 
 func (c AuthController) Login(ctx *fiber.Ctx) error {
 	input := model.AuthInput{}
 	if err := ctx.BodyParser(&input); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "Error on login",
-			"data":    err,
-		})
+		return err
 	}
-	user, _ := c.s.GetByUsername(input.Username)
+	user, err := c.s.GetByUsername(input.Username)
+	if err != nil {
+		return err
+	}
 	if !util.CheckPassword(input.Password, user.Password) {
-		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": "Error or login",
-		})
+		return errors.New("password: invalid password")
 	}
 	token, err := createToken(input.Username)
 	if err != nil {
 		log.Printf("%v\n", err)
 	}
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"data": fiber.Map{
-			"user":  user,
-			"token": token,
-		},
+	return response.Ok(ctx, fiber.Map{
+		"user":  user,
+		"token": token,
 	})
 }
 
 func (c AuthController) CurrentUser(ctx *fiber.Ctx) error {
 	payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
-	fmt.Print(payload)
 	user, _ := c.s.GetByUsername(payload.Username)
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"data": fiber.Map{
-			"user":    user,
-			"payload": payload,
-		},
+	return response.Ok(ctx, fiber.Map{
+		"user": user,
 	})
 }

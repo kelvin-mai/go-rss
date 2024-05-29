@@ -11,7 +11,9 @@ type Router struct {
 }
 
 func Init() *Router {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: DefaultErrorHandler,
+	})
 	return &Router{
 		app: app,
 	}

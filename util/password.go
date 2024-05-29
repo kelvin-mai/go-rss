@@ -1,8 +1,6 @@
 package util
 
 import (
-	"log"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,10 +9,7 @@ func CheckPassword(password, hash string) bool {
 	return err == nil
 }
 
-func HashPassword(password string) string {
+func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		log.Fatalf("Error generating password: %v\n", err)
-	}
-	return string(bytes)
+	return string(bytes), err
 }
