@@ -20,9 +20,11 @@ func main() {
 
 	us := service.NewUserService(db)
 
+	ac := controller.NewAuthController(us)
 	uc := controller.NewUserController(us)
 
 	r.SetupRoutes(router.RouteControllers{
+		AuthController: ac,
 		UserController: uc,
 	})
 	r.Serve()

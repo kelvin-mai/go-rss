@@ -14,17 +14,14 @@ func main() {
 		log.Fatalf("Error loading .env file: %v\n", err)
 	}
 	db := database.Connect()
-	password, err := util.HashPassword("password")
-	if err != nil {
-		log.Fatalf("Error generating password: %v\n", err)
-	}
+	password := util.HashPassword("password")
 	users := []model.User{
 		{
 			Username: "user",
 			Password: password,
 		},
 	}
-	_, err = db.NamedExec(
+	_, err := db.NamedExec(
 		`insert into users (username, password)
 		 values (:username, :password)
 		`,

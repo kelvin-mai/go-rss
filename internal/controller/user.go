@@ -15,15 +15,35 @@ func NewUserController(s *service.UserService) *UserController {
 	}
 }
 
-func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
-	users, err := uc.s.GetAll()
+func (c *UserController) GetAllUsers(ctx *fiber.Ctx) error {
+	users, err := c.s.GetAll()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"users":   users,
+		"data": fiber.Map{
+			"users": users,
+		},
+	})
+}
+
+func (c *UserController) GetUserById(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	user, err := c.s.GetById(id)
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Resource not found",
+			"data":    nil,
+		})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"data": fiber.Map{
+			"user": user,
+		},
 	})
 }

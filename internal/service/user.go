@@ -23,6 +23,23 @@ func (s *UserService) GetAll() ([]model.User, error) {
 
 func (s *UserService) GetById(id string) (model.User, error) {
 	user := model.User{}
-	err := s.db.Select(&user, "select * from users where id = $1", id)
+	err := s.db.Get(&user, "select * from users where id = $1", id)
 	return user, err
+}
+
+func (s *UserService) GetByUsername(username string) (model.User, error) {
+	user := model.User{}
+	err := s.db.Get(&user, "select * from users where username = $1", username)
+	return user, err
+}
+
+func (s *UserService) Create(username, password string) error {
+	_, err := s.db.Exec(
+		`insert into users (username, password)
+		 values ($1, $2)
+		`,
+		username,
+		password,
+	)
+	return err
 }
