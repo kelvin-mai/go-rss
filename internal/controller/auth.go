@@ -31,6 +31,7 @@ func createToken(user *model.User) (string, error) {
 	payload := &model.AuthPayload{
 		Username:  user.Username,
 		UserId:    user.Id,
+		IsAdmin:   user.IsAdmin,
 		ExpiresAt: time.Now().Add(duration),
 	}
 	return paseto.NewV2().Encrypt([]byte(key), payload, nil)
@@ -89,7 +90,6 @@ func (c AuthController) CurrentUser(ctx *fiber.Ctx) error {
 		return err
 	}
 	return response.Ok(ctx, fiber.Map{
-		"user":    user,
-		"payload": payload,
+		"user": user,
 	})
 }

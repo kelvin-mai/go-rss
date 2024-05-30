@@ -15,8 +15,9 @@ create table user_feed (
   id text not null primary key default nanoid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz,
-  user_id text not null references users(id),
-  feed_id text not null references feeds(id)
+  user_id text not null references users(id) on delete cascade,
+  feed_id text not null references feeds(id) on delete cascade,
+  unique(user_id, feed_id)
 );
 
 create trigger user_feed_updated_at

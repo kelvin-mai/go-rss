@@ -26,8 +26,8 @@ func main() {
 		},
 	}
 	_, err = db.NamedExec(
-		`insert into users (username, password)
-		 values (:username, :password)
+		`insert into users (username, password, is_admin)
+		 values (:username, :password, :is_admin)
 		`,
 		users,
 	)

@@ -79,3 +79,56 @@ func (s *FeedService) Delete(id string) (*model.Feed, error) {
 	err = rows.StructScan(&feed)
 	return &feed, err
 }
+
+func (s *FeedService) Follow(id, userId string) (*model.UserFeed, error) {
+	rows, err := s.db.Queryx(
+		`insert into user_feed
+		 (feed_id, user_id)
+		 values
+		 ($1, $2)
+		 returning *`,
+		id,
+		userId,
+	)
+	if err != nil {
+		return nil, err
+	}
+	userFeed := model.UserFeed{}
+	rows.Next()
+	err = rows.StructScan(&userFeed)
+	return &userFeed, err
+}
+
+func (s *FeedService) Unfollow(id, userId string) (*model.UserFeed, error) {
+	rows, err := s.db.Queryx(
+		`delete from user_feed
+		 where feed_id = $1
+		   and user_id = $2
+		 returning *`,
+		id,
+		userId,
+	)
+	if err != nil {
+		return nil, err
+	}
+	userFeed := model.UserFeed{}
+	rows.Next()
+	err = rows.StructScan(&userFeed)
+	return &userFeed, err
+}
+
+func (s *FeedService) GetUserFeeds(userId string) (interface{}, error) {
+	feeds := []model.Feed{}
+	err := s.db.Select(
+		&feeds,
+		`select feeds.*
+		 from user_feed
+		 join feeds on feeds.id = user_feed.feed_id
+		 where user_id = $1`,
+		userId,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return feeds, err
+}
