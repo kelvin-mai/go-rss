@@ -25,11 +25,12 @@ func NewAuthController(s *service.UserService) *AuthController {
 	}
 }
 
-func createToken(username string) (string, error) {
+func createToken(user *model.User) (string, error) {
 	key := os.Getenv("PASETO_KEY")
 	duration := 12 * time.Hour
 	payload := &model.AuthPayload{
-		Username:  username,
+		Username:  user.Username,
+		UserId:    user.Id,
 		ExpiresAt: time.Now().Add(duration),
 	}
 	return paseto.NewV2().Encrypt([]byte(key), payload, nil)
@@ -48,7 +49,7 @@ func (c *AuthController) Register(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	token, err := createToken(input.Username)
+	token, err := createToken(user)
 	if err != nil {
 		return err
 	}
@@ -71,7 +72,7 @@ func (c AuthController) Login(ctx *fiber.Ctx) error {
 	if !util.CheckPassword(input.Password, user.Password) {
 		return errors.New("password: invalid password")
 	}
-	token, err := createToken(input.Username)
+	token, err := createToken(&user)
 	if err != nil {
 		log.Printf("%v\n", err)
 	}
@@ -83,8 +84,12 @@ func (c AuthController) Login(ctx *fiber.Ctx) error {
 
 func (c AuthController) CurrentUser(ctx *fiber.Ctx) error {
 	payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
-	user, _ := c.s.GetByUsername(payload.Username)
+	user, err := c.s.GetByUsername(payload.Username)
+	if err != nil {
+		return err
+	}
 	return response.Ok(ctx, fiber.Map{
-		"user": user,
+		"user":    user,
+		"payload": payload,
 	})
 }

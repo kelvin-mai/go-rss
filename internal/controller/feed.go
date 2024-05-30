@@ -1,6 +1,7 @@
 package controller
 
 import (
+	pasetoware "github.com/gofiber/contrib/paseto"
 	"github.com/gofiber/fiber/v2"
 	"kelvinmai.io/rss/internal/model"
 	"kelvinmai.io/rss/internal/router/response"
@@ -39,6 +40,10 @@ func (c *FeedController) GetFeedById(ctx *fiber.Ctx) error {
 }
 
 func (c *FeedController) CreateFeed(ctx *fiber.Ctx) error {
+	payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
+	if !payload.IsAdmin {
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
 	input := model.FeedInput{}
 	if err := ctx.BodyParser(&input); err != nil {
 		return err
@@ -54,6 +59,10 @@ func (c *FeedController) CreateFeed(ctx *fiber.Ctx) error {
 }
 
 func (c *FeedController) UpdateFeed(ctx *fiber.Ctx) error {
+	payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
+	if !payload.IsAdmin {
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
 	id := ctx.Params("id")
 	input := model.FeedInput{}
 	if err := ctx.BodyParser(&input); err != nil {
@@ -69,6 +78,10 @@ func (c *FeedController) UpdateFeed(ctx *fiber.Ctx) error {
 }
 
 func (c *FeedController) DeleteById(ctx *fiber.Ctx) error {
+	payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
+	if !payload.IsAdmin {
+		return fiber.NewError(fiber.StatusUnauthorized, "Unauthorized")
+	}
 	id := ctx.Params("id")
 	feed, err := c.s.Delete(id)
 	if err != nil {
@@ -77,4 +90,9 @@ func (c *FeedController) DeleteById(ctx *fiber.Ctx) error {
 	return response.Ok(ctx, fiber.Map{
 		"feed": feed,
 	})
+}
+
+func (c *FeedController) Follow(ctx *fiber.Ctx) error {
+	// payload := ctx.Locals(pasetoware.DefaultContextKey).(model.AuthPayload)
+	return response.Created(ctx, fiber.Map{})
 }

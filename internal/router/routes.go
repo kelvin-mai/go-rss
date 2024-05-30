@@ -32,8 +32,8 @@ func (r *Router) SetupRoutes(c RouteControllers) {
 
 	feeds := api.Group("/feeds")
 	feeds.Get("/", c.FeedController.GetAllFeeds)
-	feeds.Post("/", c.FeedController.CreateFeed)
+	feeds.Post("/", middleware.Authenticate(), c.FeedController.CreateFeed)
 	feeds.Get("/:id", c.FeedController.GetFeedById)
-	feeds.Put("/:id", c.FeedController.UpdateFeed)
-	feeds.Delete("/:id", c.FeedController.DeleteById)
+	feeds.Put("/:id", middleware.Authenticate(), c.FeedController.UpdateFeed)
+	feeds.Delete("/:id", middleware.Authenticate(), c.FeedController.DeleteById)
 }

@@ -20,8 +20,9 @@ func main() {
 	}
 	users := []model.User{
 		{
-			Username: "user",
+			Username: "admin",
 			Password: password,
+			IsAdmin:  true,
 		},
 	}
 	_, err = db.NamedExec(

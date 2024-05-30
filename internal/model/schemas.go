@@ -10,6 +10,7 @@ type User struct {
 	UpdatedAt *time.Time `db:"updated_at" json:"updatedAt"`
 	Username  string     `json:"username"`
 	Password  string     `json:"-"`
+	IsAdmin   bool       `db:"is_admin" json:"isAdmin"`
 }
 
 type Feed struct {

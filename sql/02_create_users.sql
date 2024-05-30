@@ -3,6 +3,7 @@ create table users(
   created_at timestamptz not null default now(),
   updated_at timestamptz,
   username text not null unique,
+  is_admin boolean not null default false,
   password text not null
 );
 
