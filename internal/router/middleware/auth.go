@@ -7,8 +7,8 @@ import (
 
 	pasetoware "github.com/gofiber/contrib/paseto"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"kelvinmai.io/rss/internal/model"
+	"kelvinmai.io/rss/internal/router/response"
 )
 
 func validateToken(decrypted []byte) (any, error) {
@@ -18,17 +18,10 @@ func validateToken(decrypted []byte) (any, error) {
 }
 
 func errorHandler(ctx *fiber.Ctx, err error) error {
-	log.Errorf("error: %v\n", err)
-	code := fiber.StatusBadRequest
 	if errors.Is(err, pasetoware.ErrDataUnmarshal) || errors.Is(err, pasetoware.ErrExpiredToken) {
-		code = fiber.StatusUnauthorized
+		return response.ErrorUnauthorized(err)
 	}
-	return ctx.Status(code).JSON(model.ApiResponse{
-		Success: false,
-		Data: fiber.Map{
-			"error": err.Error(),
-		},
-	})
+	return response.ErrorBadRequest(err)
 }
 
 func Authenticate() fiber.Handler {

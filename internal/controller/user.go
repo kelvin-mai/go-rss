@@ -19,7 +19,7 @@ func NewUserController(s *service.UserService) *UserController {
 func (c *UserController) GetAllUsers(ctx *fiber.Ctx) error {
 	users, err := c.s.GetAll()
 	if err != nil {
-		return err
+		return response.ErrorDatabase(err)
 	}
 	return response.Ok(ctx, fiber.Map{
 		"users": users,
@@ -30,7 +30,7 @@ func (c *UserController) GetUserById(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	user, err := c.s.GetById(id)
 	if err != nil {
-		return err
+		return response.ErrorNotFound(err)
 	}
 	return response.Ok(ctx, fiber.Map{
 		"user": user,

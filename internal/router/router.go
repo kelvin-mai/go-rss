@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"kelvinmai.io/rss/internal/router/response"
 )
 
 type Router struct {
@@ -12,7 +13,7 @@ type Router struct {
 
 func Init() *Router {
 	app := fiber.New(fiber.Config{
-		ErrorHandler: DefaultErrorHandler,
+		ErrorHandler: response.DefaultErrorHandler,
 	})
 	return &Router{
 		app: app,
